@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architect AI | Professional Quiz Suite</title>
+    <title>Architect AI | Gemini Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -95,7 +95,7 @@
             <i data-lucide="fingerprint" class="w-10 h-10 text-cyan-400"></i>
         </div>
         <h1 class="text-3xl font-bold mb-2">Secure Access</h1>
-        <p class="text-slate-400 mb-8">Enter authorization code to initialize AI</p>
+        <p class="text-slate-400 mb-8">Enter authorization code to initialize Gemini AI</p>
         <input type="password" id="access-code" placeholder="ENTER CODE" 
                class="w-full p-4 rounded-xl bg-black/30 mb-4 text-center tracking-[0.5em] font-mono border border-white/10 outline-none focus:border-cyan-500/50">
         <button onclick="verifyAccess()" class="w-full py-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-bold text-white neo-btn">
@@ -107,7 +107,7 @@
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h2 class="text-2xl font-bold">Quiz Architect</h2>
-                <p class="text-slate-400 text-sm">Convert documents to intelligent assessments</p>
+                <p class="text-slate-400 text-sm">Gemini-powered PDF assessment generator</p>
             </div>
             <div class="p-3 bg-white/5 rounded-full"><i data-lucide="cpu" class="text-cyan-400"></i></div>
         </div>
@@ -118,7 +118,7 @@
                 <div onclick="document.getElementById('pdf-file').click()">
                     <i data-lucide="file-up" class="w-12 h-12 mx-auto mb-4 text-slate-500 group-hover:text-cyan-400 transition-colors"></i>
                     <p id="file-label" class="text-lg font-medium text-slate-300">Upload Source PDF</p>
-                    <p class="text-xs text-slate-500 mt-2">Maximum 10 pages for optimal AI analysis</p>
+                    <p class="text-xs text-slate-500 mt-2">Maximum 10 pages for analysis</p>
                 </div>
             </div>
 
@@ -138,7 +138,7 @@
             </div>
 
             <button onclick="generateMCQs()" id="gen-btn" class="w-full py-5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 font-bold text-lg flex items-center justify-center gap-3 neo-btn">
-                <i data-lucide="wand-2" class="w-5 h-5"></i> GENERATE ASSESSMENT
+                <i data-lucide="wand-2" class="w-5 h-5"></i> GENERATE WITH GEMINI
             </button>
 
             <div id="progress-container" class="hidden space-y-3">
@@ -160,7 +160,7 @@
     <div id="results-section" class="hidden w-full max-w-2xl p-10 glass rounded-[2.5rem] text-center section-transition">
         <div class="mb-6"><i data-lucide="check-circle" class="w-16 h-16 text-green-400 mx-auto"></i></div>
         <h2 class="text-3xl font-bold mb-2">Generation Complete</h2>
-        <p class="text-slate-400 mb-10">Your interactive quiz is ready for distribution</p>
+        <p class="text-slate-400 mb-10">Your Gemini assessment is ready</p>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button onclick="exportToPDF()" class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-cyan-500 transition-all flex flex-col items-center gap-3">
@@ -180,7 +180,7 @@
 
     <script>
         // Configuration
-        const API_KEY = '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';
+        const API_KEY = 'AIzaSyDA81a-tAcRpV3n3Ow1cH1ag0Ud8hKN6Aw'; 
         const CODES = ['ADMIN2025', 'GUEST'];
         let questions = [];
         let currentIndex = 0;
@@ -223,7 +223,6 @@
 
             const btn = document.getElementById('gen-btn');
             const prog = document.getElementById('progress-container');
-            const bar = document.getElementById('progress-bar');
             
             btn.disabled = true;
             prog.classList.remove('hidden');
@@ -232,25 +231,34 @@
                 updateProgress("Parsing Document", "30%");
                 const text = await extractText(file);
                 
-                updateProgress("AI Architecting Questions", "70%");
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                updateProgress("Gemini Architecting Questions", "70%");
+                
+                const MODEL = "gemini-1.5-flash";
+                const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+
+                const prompt = `You are a professional examiner. Based on the following text: "${text.substring(0, 8000)}", 
+                generate ${document.getElementById('q-count').value} multiple choice questions. 
+                Difficulty: ${document.getElementById('q-diff').value}. 
+                Return the response STRICTLY as a JSON object with a key "questions" containing an array of objects. 
+                Each object must have: "question", "options" (array of 4 strings), and "answer" (the string value of the correct option).`;
+
+                const response = await fetch(URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: "gpt-3.5-turbo",
-                        messages: [{ 
-                            role: "system", 
-                            content: "You are a professional examiner. Return JSON only." 
-                        }, { 
-                            role: "user", 
-                            content: `Create ${document.getElementById('q-count').value} MCQs from: ${text.substring(0, 4000)}. Difficulty: ${document.getElementById('q-diff').value}. JSON Format: [{"question":"", "options":["","","",""], "answer":""}]`
-                        }],
-                        response_format: { type: "json_object" }
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                        }
                     })
                 });
 
+                if (!response.ok) throw new Error('API request failed');
+
                 const data = await response.json();
-                const parsed = JSON.parse(data.choices[0].message.content);
+                const rawJson = data.candidates[0].content.parts[0].text;
+                const parsed = JSON.parse(rawJson);
+                
                 questions = parsed.questions || parsed.mcqs || Object.values(parsed)[0];
                 
                 updateProgress("Finalizing", "100%");
@@ -261,7 +269,8 @@
                 }, 800);
 
             } catch (e) {
-                alert("System Error: Ensure API Key is valid.");
+                console.error(e);
+                alert("System Error: Ensure your Gemini API Key is valid and active.");
                 btn.disabled = false;
             }
         }
@@ -283,7 +292,7 @@
                     `).join('')}
                 </div>
                 <div class="mt-10 pt-6 border-t border-white/5 flex justify-between items-center">
-                    <button onclick="revealAns('${q.answer}')" class="text-sm font-bold text-slate-500 hover:text-cyan-400 transition-colors">REVEAL KEY</button>
+                    <button onclick="revealAns('${q.answer.replace(/'/g, "\\'")}')" class="text-sm font-bold text-slate-500 hover:text-cyan-400 transition-colors">REVEAL KEY</button>
                     <div id="ans-reveal" class="hidden text-cyan-400 font-mono text-sm font-bold">CORRECT: ${q.answer}</div>
                     <button onclick="nextStep()" class="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-cyan-400 transition-colors">
                         ${currentIndex === questions.length - 1 ? 'FINISH' : 'CONTINUE'}
@@ -314,8 +323,6 @@
             }
         }
 
-        // --- Export Functions ---
-
         function exportToText() {
             let content = "AI GENERATED ASSESSMENT\n==========================\n\n";
             questions.forEach((q, i) => {
@@ -323,12 +330,11 @@
                 q.options.forEach((o, j) => content += `   ${String.fromCharCode(65 + j)}) ${o}\n`);
                 content += `Correct Answer: ${q.answer}\n\n`;
             });
-            
             const blob = new Blob([content], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'quiz_export.txt';
+            a.download = 'gemini_quiz.txt';
             a.click();
         }
 
@@ -336,33 +342,27 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             let y = 20;
-
             doc.setFontSize(20);
             doc.text("Quiz Assessment Report", 20, y);
             y += 15;
-
             doc.setFontSize(11);
             questions.forEach((q, i) => {
                 if (y > 270) { doc.addPage(); y = 20; }
                 doc.setFont(undefined, 'bold');
                 doc.text(`${i + 1}. ${q.question}`, 20, y, { maxWidth: 170 });
                 y += 10;
-                
                 doc.setFont(undefined, 'normal');
                 q.options.forEach((o, j) => {
                     doc.text(`   ${String.fromCharCode(65 + j)}) ${o}`, 20, y);
                     y += 7;
                 });
-                
                 doc.setFont(undefined, 'italic');
                 doc.text(`Correct Answer: ${q.answer}`, 20, y);
                 y += 12;
             });
-
-            doc.save('quiz_architect_export.pdf');
+            doc.save('gemini_assessment.pdf');
         }
 
-        // Utilities
         function show(id) { document.getElementById(id).classList.remove('hidden'); }
         function hide(id) { document.getElementById(id).classList.add('hidden'); }
         function updateProgress(txt, perc) {
