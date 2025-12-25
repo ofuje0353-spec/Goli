@@ -1,375 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architect AI | Gemini Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro MCQ AI | Neon Studio</title>
 
-        :root {
-            --accent: #06b6d4;
-            --accent-glow: rgba(6, 182, 212, 0.5);
-            --bg-dark: #0f172a;
-        }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-dark);
-            color: #f1f5f9;
-            background-image: radial-gradient(circle at 0% 0%, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
-            min-height: 100vh;
-        }
+<style>
+:root {
+  --bg: #05070a;
+  --card: rgba(15, 23, 42, 0.8);
+  --neon: #00f2ff;
+  --accent: #7000ff;
+  --accent-2: #ff007a;
+  --text: #f8fafc;
+  --text-dim: #94a3b8;
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
 
-        .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
+.light {
+  --bg: #f0f4f8;
+  --card: rgba(255, 255, 255, 0.85);
+  --neon: #4f46e5;
+  --accent: #9333ea;
+  --accent-2: #db2777;
+  --text: #1e293b;
+  --text-dim: #64748b;
+  --glass-border: rgba(0, 0, 0, 0.1);
+}
 
-        .neo-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
+* {
+  box-sizing: border-box;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-        .neo-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+}
 
-        .neo-btn:active { transform: translateY(0); }
+.container {
+  max-width: 700px;
+  width: 95%;
+  padding: 40px 20px;
+  position: relative;
+}
 
-        .option-card {
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+/* Glass Card Style */
+.card {
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 35px;
+  border-radius: 24px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
 
-        .option-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--accent);
-        }
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--neon), var(--accent), var(--accent-2));
+}
 
-        .selected-option {
-            background: rgba(6, 182, 212, 0.1) !important;
-            border-color: var(--accent) !important;
-        }
+h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+  margin-top: 0;
+  background: linear-gradient(to right, var(--neon), #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
 
-        .progress-shimmer {
-            background: linear-gradient(90deg, #06b6d4 0%, #8b5cf6 100%);
-            background-size: 200% auto;
-            animation: moveGradient 2s linear infinite;
-        }
+/* Inputs & Controls */
+label {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
-        @keyframes moveGradient {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
+input, select {
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 1rem;
+}
 
-        .section-transition {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--neon);
+  box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+/* Modern Buttons */
+button {
+  width: 100%;
+  padding: 16px;
+  margin-top: 25px;
+  border-radius: 14px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 10px 20px rgba(112, 0, 255, 0.3);
+}
 
-        input[type="number"], select {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: white;
-        }
-    </style>
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px rgba(112, 0, 255, 0.4);
+  filter: brightness(1.1);
+}
+
+button:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  margin-top: 10px;
+}
+
+.btn-show-ans {
+  background: transparent;
+  border: 1px dashed var(--neon);
+  color: var(--neon);
+}
+
+/* Progress & Quiz UI */
+.progress-text {
+  font-weight: 600;
+  color: var(--neon);
+  margin-bottom: 20px;
+}
+
+.question-text {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  display: block;
+}
+
+.answer {
+  display: none;
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 4px solid #22c55e;
+  border-radius: 8px;
+  color: #4ade80;
+  font-weight: 600;
+}
+
+/* Loader */
+.loader { margin-top: 30px; }
+.bar-container {
+  height: 6px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.bar {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, var(--neon), var(--accent));
+  border-radius: 10px;
+  animation: loading 1.5s infinite ease-in-out;
+}
+
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+.toggle-container {
+  position: absolute;
+  top: -60px;
+  right: 0;
+}
+
+.toggle-btn {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+}
+
+.hidden { display: none; }
+
+/* Mobile Optimization */
+@media (max-width: 480px) {
+  .card { padding: 25px; }
+  h1 { font-size: 1.5rem; }
+}
+</style>
 </head>
-<body class="flex items-center justify-center p-6">
 
-    <div id="auth-section" class="w-full max-w-md p-10 glass rounded-[2rem] text-center section-transition">
-        <div class="inline-flex p-4 rounded-2xl bg-cyan-500/10 mb-6">
-            <i data-lucide="fingerprint" class="w-10 h-10 text-cyan-400"></i>
-        </div>
-        <h1 class="text-3xl font-bold mb-2">Secure Access</h1>
-        <p class="text-slate-400 mb-8">Enter authorization code to initialize Gemini AI</p>
-        <input type="password" id="access-code" placeholder="ENTER CODE" 
-               class="w-full p-4 rounded-xl bg-black/30 mb-4 text-center tracking-[0.5em] font-mono border border-white/10 outline-none focus:border-cyan-500/50">
-        <button onclick="verifyAccess()" class="w-full py-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-bold text-white neo-btn">
-            AUTHENTICATE
-        </button>
+<body>
+<div class="container">
+
+  <div id="access" class="card">
+    <h1>🔐 AI Terminal</h1>
+    <label>Access Key</label>
+    <input id="codeInput" type="password" placeholder="••••••••" style="text-align: center; letter-spacing: 4px;">
+    <button onclick="checkCode()">Decrypt System</button>
+    <p id="error" style="color:#ff4d4d; text-align:center; font-size: 0.9rem; margin-top: 15px;"></p>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="toggle-container">
+      <button class="toggle-btn btn-secondary" onclick="toggleMode()">🌓 Switch Theme</button>
     </div>
 
-    <div id="main-section" class="hidden w-full max-w-2xl p-8 glass rounded-[2.5rem] section-transition">
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h2 class="text-2xl font-bold">Quiz Architect</h2>
-                <p class="text-slate-400 text-sm">Gemini-powered PDF assessment generator</p>
-            </div>
-            <div class="p-3 bg-white/5 rounded-full"><i data-lucide="cpu" class="text-cyan-400"></i></div>
+    <div class="card">
+      <h1>📄 Smart MCQ Engine</h1>
+      
+      <label>Source Document</label>
+      <input type="file" id="pdfFile" accept="application/pdf">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div>
+          <label>Complexity</label>
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
         </div>
-
-        <div class="space-y-6">
-            <div id="dropzone" class="border-2 border-dashed border-white/10 p-12 rounded-3xl text-center hover:border-cyan-500/50 transition-colors cursor-pointer group">
-                <input type="file" id="pdf-file" accept=".pdf" class="hidden" onchange="updateFileStatus()">
-                <div onclick="document.getElementById('pdf-file').click()">
-                    <i data-lucide="file-up" class="w-12 h-12 mx-auto mb-4 text-slate-500 group-hover:text-cyan-400 transition-colors"></i>
-                    <p id="file-label" class="text-lg font-medium text-slate-300">Upload Source PDF</p>
-                    <p class="text-xs text-slate-500 mt-2">Maximum 10 pages for analysis</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500 ml-1">Questions</label>
-                    <input type="number" id="q-count" value="5" min="1" max="15" class="w-full p-4 rounded-xl outline-none">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500 ml-1">Complexity</label>
-                    <select id="q-diff" class="w-full p-4 rounded-xl outline-none appearance-none">
-                        <option>Foundational</option>
-                        <option selected>Intermediate</option>
-                        <option>Advanced</option>
-                    </select>
-                </div>
-            </div>
-
-            <button onclick="generateMCQs()" id="gen-btn" class="w-full py-5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 font-bold text-lg flex items-center justify-center gap-3 neo-btn">
-                <i data-lucide="wand-2" class="w-5 h-5"></i> GENERATE WITH GEMINI
-            </button>
-
-            <div id="progress-container" class="hidden space-y-3">
-                <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-cyan-400">
-                    <span id="loader-text">Processing Engine</span>
-                    <span id="loader-perc">0%</span>
-                </div>
-                <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="h-full progress-shimmer w-0 transition-all duration-700"></div>
-                </div>
-            </div>
+        <div>
+          <label>Quantity</label>
+          <input type="number" id="count" value="5" min="1" max="20">
         </div>
+      </div>
+
+      <button onclick="generate()">
+        <span>🚀</span> Generate Assessment
+      </button>
+
+      <div id="loader" class="loader hidden">
+        <p style="text-align:center; font-size: 0.9rem; color: var(--text-dim);">Analyzing document & generating questions...</p>
+        <div class="bar-container">
+          <div class="bar"></div>
+        </div>
+      </div>
     </div>
 
-    <div id="quiz-section" class="hidden w-full max-w-3xl p-10 glass rounded-[2.5rem] section-transition">
-        <div id="question-box"></div>
+    <div id="quiz" style="margin-top: 30px;"></div>
+  </div>
+</div>
+
+<script>
+/* ORIGINAL SCRIPT PRESERVED AS REQUESTED 
+*/
+const codes=["NEON123","AI2025","OPEN789"];
+function checkCode(){
+  const val=codeInput.value.trim();
+  if(codes.includes(val)){
+    access.style.display="none";
+    app.classList.remove("hidden");
+  }else error.innerText="Invalid access code";
+}
+
+function toggleMode(){
+  document.body.classList.toggle("light");
+}
+
+async function readPDF(file){
+  const data=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data}).promise;
+  let text="";
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const content=await page.getTextContent();
+    content.items.forEach(t=>text+=t.str+" ");
+  }
+  return text.slice(0,12000);
+}
+
+// API KEY PRESERVED
+const OPENAI_KEY="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";
+let questions=[],index=0;
+
+async function generate(){
+  if(!pdfFile.files[0]) return alert("Upload a PDF");
+  loader.classList.remove("hidden");
+  quiz.innerHTML="";
+  index=0;
+
+  const text=await readPDF(pdfFile.files[0]);
+  const prompt=`Generate ${count.value} ${difficulty.value} MCQs.
+Format strictly:
+Q:
+A)
+B)
+C)
+D)
+Answer:
+Content:${text}`;
+
+  const res=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+OPENAI_KEY
+    },
+    body:JSON.stringify({
+      model:"gpt-4o-mini",
+      messages:[{role:"user",content:prompt}]
+    })
+  });
+
+  const data=await res.json();
+  loader.classList.add("hidden");
+  questions=data.choices[0].message.content
+    .split("Q")
+    .filter(q=>q.trim());
+  showQuestion();
+}
+
+function showQuestion(){
+  const q=questions[index];
+  if(!q) return;
+
+  const parts=q.split("Answer:");
+  quiz.innerHTML=`
+    <div class="card">
+      <div class="progress-text">
+        Question ${index+1} / ${questions.length}
+      </div>
+      <span class="question-text"><strong>Q.</strong> ${parts[0]}</span>
+
+      <button class="btn-show-ans" onclick="this.nextElementSibling.style.display='block'">
+        🔍 Reveal Correct Answer
+      </button>
+      <div class="answer">Correct Logic: ${parts[1]||""}</div>
+
+      <button onclick="nextQuestion()">
+        ${index+1===questions.length?"Finish Quiz":"Next Question →"}
+      </button>
     </div>
+  `;
+}
 
-    <div id="results-section" class="hidden w-full max-w-2xl p-10 glass rounded-[2.5rem] text-center section-transition">
-        <div class="mb-6"><i data-lucide="check-circle" class="w-16 h-16 text-green-400 mx-auto"></i></div>
-        <h2 class="text-3xl font-bold mb-2">Generation Complete</h2>
-        <p class="text-slate-400 mb-10">Your Gemini assessment is ready</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button onclick="exportToPDF()" class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-cyan-500 transition-all flex flex-col items-center gap-3">
-                <i data-lucide="file-text" class="text-cyan-400"></i>
-                <span class="font-bold">Export as PDF</span>
-            </button>
-            <button onclick="exportToText()" class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500 transition-all flex flex-col items-center gap-3">
-                <i data-lucide="type" class="text-purple-400"></i>
-                <span class="font-bold">Save as Text</span>
-            </button>
-        </div>
-        
-        <button onclick="location.reload()" class="mt-8 text-slate-500 hover:text-white transition-colors text-sm font-medium underline underline-offset-4">
-            Create New Assessment
-        </button>
-    </div>
-
-    <script>
-        // Configuration
-        const API_KEY = 'AIzaSyDA81a-tAcRpV3n3Ow1cH1ag0Ud8hKN6Aw'; 
-        const CODES = ['ADMIN2025', 'GUEST'];
-        let questions = [];
-        let currentIndex = 0;
-
-        lucide.createIcons();
-
-        function verifyAccess() {
-            const val = document.getElementById('access-code').value.toUpperCase();
-            if (CODES.includes(val)) {
-                hide('auth-section');
-                show('main-section');
-            } else {
-                alert("Invalid Access Code");
-            }
-        }
-
-        function updateFileStatus() {
-            const file = document.getElementById('pdf-file').files[0];
-            if (file) {
-                document.getElementById('file-label').innerHTML = `<span class="text-cyan-400">Loaded: ${file.name}</span>`;
-                document.getElementById('dropzone').style.borderColor = 'rgba(6, 182, 212, 0.5)';
-            }
-        }
-
-        async function extractText(file) {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            let text = "";
-            for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
-                const page = await pdf.getPage(i);
-                const content = await page.getTextContent();
-                text += content.items.map(item => item.str).join(" ");
-            }
-            return text;
-        }
-
-        async function generateMCQs() {
-            const file = document.getElementById('pdf-file').files[0];
-            if (!file) return alert("Please select a PDF file.");
-
-            const btn = document.getElementById('gen-btn');
-            const prog = document.getElementById('progress-container');
-            
-            btn.disabled = true;
-            prog.classList.remove('hidden');
-            
-            try {
-                updateProgress("Parsing Document", "30%");
-                const text = await extractText(file);
-                
-                updateProgress("Gemini Architecting Questions", "70%");
-                
-                const MODEL = "gemini-1.5-flash";
-                const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
-
-                const prompt = `You are a professional examiner. Based on the following text: "${text.substring(0, 8000)}", 
-                generate ${document.getElementById('q-count').value} multiple choice questions. 
-                Difficulty: ${document.getElementById('q-diff').value}. 
-                Return the response STRICTLY as a JSON object with a key "questions" containing an array of objects. 
-                Each object must have: "question", "options" (array of 4 strings), and "answer" (the string value of the correct option).`;
-
-                const response = await fetch(URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            responseMimeType: "application/json",
-                        }
-                    })
-                });
-
-                if (!response.ok) throw new Error('API request failed');
-
-                const data = await response.json();
-                const rawJson = data.candidates[0].content.parts[0].text;
-                const parsed = JSON.parse(rawJson);
-                
-                questions = parsed.questions || parsed.mcqs || Object.values(parsed)[0];
-                
-                updateProgress("Finalizing", "100%");
-                setTimeout(() => {
-                    hide('main-section');
-                    show('quiz-section');
-                    renderQuestion();
-                }, 800);
-
-            } catch (e) {
-                console.error(e);
-                alert("System Error: Ensure your Gemini API Key is valid and active.");
-                btn.disabled = false;
-            }
-        }
-
-        function renderQuestion() {
-            const q = questions[currentIndex];
-            const box = document.getElementById('question-box');
-            box.innerHTML = `
-                <div class="flex justify-between items-center mb-8">
-                    <span class="text-xs font-black tracking-widest text-cyan-500 bg-cyan-500/10 px-3 py-1 rounded">STAGE ${currentIndex + 1}/${questions.length}</span>
-                </div>
-                <h3 class="text-2xl font-bold mb-8 leading-tight">${q.question}</h3>
-                <div class="grid gap-3">
-                    ${q.options.map((opt, i) => `
-                        <div onclick="selectOpt(this)" class="option-card p-5 rounded-2xl flex items-center gap-4">
-                            <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold">${String.fromCharCode(65+i)}</div>
-                            <span class="text-slate-200">${opt}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="mt-10 pt-6 border-t border-white/5 flex justify-between items-center">
-                    <button onclick="revealAns('${q.answer.replace(/'/g, "\\'")}')" class="text-sm font-bold text-slate-500 hover:text-cyan-400 transition-colors">REVEAL KEY</button>
-                    <div id="ans-reveal" class="hidden text-cyan-400 font-mono text-sm font-bold">CORRECT: ${q.answer}</div>
-                    <button onclick="nextStep()" class="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-cyan-400 transition-colors">
-                        ${currentIndex === questions.length - 1 ? 'FINISH' : 'CONTINUE'}
-                    </button>
-                </div>
-            `;
-            lucide.createIcons();
-        }
-
-        function selectOpt(el) {
-            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected-option'));
-            el.classList.add('selected-option');
-        }
-
-        function revealAns(val) {
-            const el = document.getElementById('ans-reveal');
-            el.innerText = `CORRECT: ${val}`;
-            el.classList.toggle('hidden');
-        }
-
-        function nextStep() {
-            if (currentIndex < questions.length - 1) {
-                currentIndex++;
-                renderQuestion();
-            } else {
-                hide('quiz-section');
-                show('results-section');
-            }
-        }
-
-        function exportToText() {
-            let content = "AI GENERATED ASSESSMENT\n==========================\n\n";
-            questions.forEach((q, i) => {
-                content += `${i + 1}. ${q.question}\n`;
-                q.options.forEach((o, j) => content += `   ${String.fromCharCode(65 + j)}) ${o}\n`);
-                content += `Correct Answer: ${q.answer}\n\n`;
-            });
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'gemini_quiz.txt';
-            a.click();
-        }
-
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            let y = 20;
-            doc.setFontSize(20);
-            doc.text("Quiz Assessment Report", 20, y);
-            y += 15;
-            doc.setFontSize(11);
-            questions.forEach((q, i) => {
-                if (y > 270) { doc.addPage(); y = 20; }
-                doc.setFont(undefined, 'bold');
-                doc.text(`${i + 1}. ${q.question}`, 20, y, { maxWidth: 170 });
-                y += 10;
-                doc.setFont(undefined, 'normal');
-                q.options.forEach((o, j) => {
-                    doc.text(`   ${String.fromCharCode(65 + j)}) ${o}`, 20, y);
-                    y += 7;
-                });
-                doc.setFont(undefined, 'italic');
-                doc.text(`Correct Answer: ${q.answer}`, 20, y);
-                y += 12;
-            });
-            doc.save('gemini_assessment.pdf');
-        }
-
-        function show(id) { document.getElementById(id).classList.remove('hidden'); }
-        function hide(id) { document.getElementById(id).classList.add('hidden'); }
-        function updateProgress(txt, perc) {
-            document.getElementById('loader-text').innerText = txt;
-            document.getElementById('progress-bar').style.width = perc;
-            document.getElementById('loader-perc').innerText = perc;
-        }
-    </script>
+function nextQuestion(){
+  index++;
+  if(index<questions.length){
+    showQuestion();
+  }else{
+    quiz.innerHTML=`
+      <div class="card" style="text-align:center">
+        <h1 style="background: linear-gradient(to right, #22c55e, #00f2ff); -webkit-background-clip: text;">🏆 Assessment Complete</h1>
+        <p style="color: var(--text-dim)">You have processed all questions from the document.</p>
+        <button class="btn-secondary" onclick="location.reload()">Start New Session</button>
+      </div>
+    `;
+  }
+}
+</script>
 </body>
 </html>
